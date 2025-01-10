@@ -26,7 +26,7 @@ func (r *ProductRepository) GetAll() ([]map[string]interface{}, error) {
 			"updated_at":  "14:32 10/01/2025",
 		},
 		{
-			"id":          ,
+			"id":          2,
 			"name":        "Kopi Luak",
 			"description": "kopi kapal api adalah sebuah kopi hitam",
 			"price":       9000,

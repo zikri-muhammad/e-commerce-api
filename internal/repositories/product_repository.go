@@ -1,40 +1,66 @@
 package repositories
 
-// ProductRepository is responsible for interacting with the database or data source
+import (
+	"e-commerce-api/internal/models"
+
+	"gorm.io/gorm"
+)
+
+// ProductRepository is responsible for interacting with the database
 type ProductRepository struct {
-	// You can add DB connection here in a real implementation
+	db *gorm.DB
 }
 
 // NewProductRepository creates a new ProductRepository
-func NewProductRepository() *ProductRepository {
-	return &ProductRepository{}
+func NewProductRepository(db *gorm.DB) *ProductRepository {
+	return &ProductRepository{
+		db: db,
+	}
 }
 
-// GetAll returns a list of all products (mocked data)
+// GetAll returns a list of all products from database
 func (r *ProductRepository) GetAll() ([]map[string]interface{}, error) {
-	// In a real-world scenario, this would be a database query.
-	// Here we're returning a mocked list of products.
-	products := []map[string]interface{}{
-		{
-			"id":          1,
-			"name":        "Kopi Kapal Api",
-			"description": "kopi kapal api adalah sebuah kopi hitam",
-			"price":       9000,
-			"stock":       9,
-			"categor_id":  1,
-			"created_at":  "14:32 10/01/2025",
-			"updated_at":  "14:32 10/01/2025",
-		},
-		{
-			"id":          2,
-			"name":        "Kopi Luak",
-			"description": "kopi kapal api adalah sebuah kopi hitam",
-			"price":       9000,
-			"stock":       9,
-			"categor_id":  1,
-			"created_at":  "14:32 10/01/2025",
-			"updated_at":  "14:32 10/01/2025",
-		},
+	var products []models.Product
+
+	if err := r.db.Find(&products).Error; err != nil {
+		return nil, err
 	}
-	return products, nil
+
+	// Convert to map format for consistency with existing response
+	result := make([]map[string]interface{}, len(products))
+	for i, product := range products {
+		result[i] = map[string]interface{}{
+			"id":          product.ID,
+			"name":        product.Name,
+			"price":       product.Price,
+			"stok":        product.Stok,
+			"description": product.Description,
+		}
+	}
+
+	return result, nil
+}
+
+// Create adds a new product to database
+func (r *ProductRepository) Create(product *models.Product) error {
+	return r.db.Create(product).Error
+}
+
+// GetByID retrieves a product by its ID
+func (r *ProductRepository) GetByID(id uint) (*models.Product, error) {
+	var product models.Product
+	if err := r.db.First(&product, id).Error; err != nil {
+		return nil, err
+	}
+	return &product, nil
+}
+
+// Update modifies an existing product
+func (r *ProductRepository) Update(product *models.Product) error {
+	return r.db.Save(product).Error
+}
+
+// Delete removes a product from database
+func (r *ProductRepository) Delete(id uint) error {
+	return r.db.Delete(&models.Product{}, id).Error
 }

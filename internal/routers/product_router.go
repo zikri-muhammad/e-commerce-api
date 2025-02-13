@@ -7,6 +7,13 @@ import (
 )
 
 func SetupProductRoutes(app *fiber.App, productHandler *handlers.ProductHandler) {
-	app.Get("/products", productHandler.GetProducts)
-	// app.Get("/product/:id", productHandler.GetProduct) // You can add more routes if needed
+	// Group product routes
+	products := app.Group("/products")
+
+	// Setup routes
+	products.Get("/", productHandler.GetProducts)         // GET /products
+	products.Get("/:id", productHandler.GetProduct)       // GET /products/:id
+	products.Post("/", productHandler.CreateProduct)      // POST /products
+	products.Put("/:id", productHandler.UpdateProduct)    // PUT /products/:id
+	products.Delete("/:id", productHandler.DeleteProduct) // DELETE /products/:id
 }
